@@ -1,0 +1,102 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background: #ccc;
+}
+a {
+  color: #0069ff;
+}
+#container {
+  width: 90%;
+  height: 90%;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: #fff;
+  box-shadow: 1px 3px 3px #333;
+  border-radius: 5px;
+}
+#logo {
+  text-align: center;
+}
+#display {
+  width: 90%;
+  height: 90%
+  margin: 20px 0 50px;
+}
+label {
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size: 12px;
+  background: #f7f7f7;
+  padding: 4px 10px;
+  float: left;
+  clear: right;
+  width: 100px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+  text-align:center;
+}
+label.uiindex {
+  margin-left: 20px;
+   width: 70px;
+}
+
+li {
+list-style-type: none;
+}
+
+#activityheader label {
+   float: none;
+}
+
+
+input[type="text"] {
+  height: 22px;
+  width: 93px;
+  margin-right: 16px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border: 1px solid #ccc;
+  vertical-align: middle;
+}
+
+#employees h3{
+padding-left: 30px;
+}
+
+#Activity A {
+position:absolute;
+right:60px;
+vertical-align: middle;
+float: right;
+}
+
+.text-label {
+    color: #cdcdcd;
+    font-weight: bold;
+}
+
+
+#sortable li {
+margin: 0 3px 3px 3px;
+padding: 0.4em;
+padding-left: 1.5em;
+height: 24px;
+}
+
+#sortableexercises li {
+margin: 0 3px 3px 3px;
+padding: 0.4em;
+padding-left: 1.5em;
+height: 24px;
+}
+
+
+#ExerciseEditor A {
+position:absolute;
+right:60px;
+vertical-align: middle;
+float: right;
+}
+
+

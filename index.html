@@ -1,0 +1,117 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title>BodyREP Demo</title>
+    <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+    <script type="text/javascript" src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+    <script type='text/javascript' src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.9/jquery-ui.js"></script>
+    <script src="/static/javascripts/jsrender.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/static/form2js/form2js.js"></script>
+    <script src="/static/form2js/jquery.toObject.js"></script>
+    <script src="/static/form2js/json2.js"></script>
+    <script src="/static/javascripts/script.js"></script>
+    <link rel="stylesheet" href="/static/stylesheets/smoothness/jquery-ui-1.8.20.custom.css"/>
+        <link rel="stylesheet" href="/static/stylesheets/jui_style.css"/>
+    <link rel="stylesheet" href="/static/stylesheets/style.css"/>
+    <script id="movieTemplate1" type="text/x-jsrender">
+      <h3>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h3>
+      <div class="workoutdata">
+          <h4>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h4>
+          <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
+          <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
+          {{if Activities.Activity.Lap}}  
+            {{for Activities.Activity.Lap}}
+                      <p>LAP  {{:#index+1}} - 
+                      {{if run}} Run - {{:run.name}} - {{:run.distance}}KM  in {{:run.time}}{{/if}}
+                      {{if bike}} Bike - {{:bike.name}} - {{:bike.distance}} x {{:bike.time}}{{/if}}
+                      {{if cardio}} Cardio - {{:cardio.name}} - {{:cardio.distance}} x {{:cardio.time}}{{/if}}
+                      {{if exercise}} Exercise - {{:exercise.name}} - {{:exercise.sets}} x {{:exercise.reps}} with {{:exercise.weight}} Kg{{/if}}
+                      {{if rest}} Recovery Step {{/if}}
+                      </p>
+                      
+            {{/for}}
+          {{/if}}            
+      </div>
+      
+    </script>
+    <script id="DataTemplate1" type="text/x-jsrender">
+      <h3>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h3>
+      <div class="workoutdata">
+          <h4>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h4>
+          <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
+          <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
+      </div>
+      
+    </script>
+
+
+
+  </head>
+  <body>
+<div id="container">
+<div id="logo"><H1>BodyREP Demo</h1></div>
+<div id="display">
+<ul>
+<li style="display: none" class="new-lap ui-state-default removable">
+            <label class="uiindex"></label>
+            <select class="laptype">
+              <option value="">Select...</option>
+              <option value="Cardio">Cardio</option>
+              <option value="Exercise">Weights</option>  
+            </select>
+          <span><a href=# class=delete>delete</a></span>
+</li>
+</ul>
+	
+<div id="tabs">
+    <ul>
+    <li><a id="Activities_tab" href="#Activities">Workout History</a></li>
+		<li><a href="#Activity">Add Workout</a></li>
+		<li><a href="#ExerciseEditor">Edit Exercises</a></li>
+<!-- 		<li><a href="#ExpressoEditor">Edit Expresso Tracks</a></li>
+    <li><a href="#GarminDataUpload">Upload Garmin Data</a></li> -->
+	</ul>
+    
+
+      <div id="Activity">
+      <span class="ActivityID">
+        <button class="Add" value="lap">Add Exercise</button>
+            <form id="myForm">
+            <ul id="sortable" class="Activities">
+            <li class="ui-state-default"><label>Activity Name</label><input type="text" name="Activities.Activity.name" placeholder="Location"><label>Date</label><input type="text" class="datepicker" name="Activities.Activity.date"></li>
+            </ul>
+            <button type="submit" id="save" value="Save">Save</button>
+            <button style="display: none" type="submit" id="savecopy" value="Savecopy">Save Copy</button>
+            <button type="button" id="cancelform" value="Cancel"/>Cancel</button>
+            </form>
+      </span>
+      </div>
+      
+      <div id="ExerciseEditor" >
+       <span class="ExerciseID">     
+          <button class="AddExercise">Add Exercise</button>
+          <button type="button" class="cancel" value="Cancel"/>Cancel</button>
+          <form id="ExerciseForm">
+             <ul id="sortableexercises">
+            </ul>
+            <button type="submit" id="saveexercises" value="Save">Save</button>
+            <button type="button" id="cancelexerciseform" value="Cancel"/>Cancel</button>
+        </form>
+       </span>
+      </div>
+      
+    
+      <div id="Activities">
+      <ul id="ActivityList"></ul>
+      </div>
+
+
+</div>
+    </div>
+ </div>
+      
+
+</div></body>
+</html>
