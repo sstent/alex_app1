@@ -18,7 +18,6 @@
     <script id="movieTemplate1" type="text/x-jsrender">
       <h3>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h3>
       <div class="workoutdata">
-          <h4>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h4>
           <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
           <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
           {{if Activities.Activity.Lap}}  
@@ -39,7 +38,7 @@
     <script id="DataTemplate1" type="text/x-jsrender">
       <h3>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h3>
       <div class="workoutdata">
-          <h4>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h4>
+          // <h4>{{:Activities.Activity.date}} - {{:Activities.Activity.name}}</h4>
           <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
           <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
       </div>
@@ -53,6 +52,7 @@
 <div id="container">
 <div id="logo"><H1>BodyREP Demo</h1></div>
 <div id="display">
+ 
 <ul>
 <li style="display: none" class="new-lap ui-state-default removable">
             <label class="uiindex"></label>
@@ -64,17 +64,22 @@
           <span><a href=# class=delete>delete</a></span>
 </li>
 </ul>
-	
+<!--	
 <div id="tabs">
     <ul>
     <li><a id="Activities_tab" href="#Activities">Workout History</a></li>
 		<li><a href="#Activity">Add Workout</a></li>
 		<li><a href="#ExerciseEditor">Edit Exercises</a></li>
-<!-- 		<li><a href="#ExpressoEditor">Edit Expresso Tracks</a></li>
-    <li><a href="#GarminDataUpload">Upload Garmin Data</a></li> -->
-	</ul>
-    
+		<li><a href="#ExpressoEditor">Edit Expresso Tracks</a></li>
+    <li><a href="#GarminDataUpload">Upload Garmin Data</a></li> 
+	</ul> 
+-->
 
+      <div id="Activities">
+      <ul id="ActivityList"></ul>
+      </div>
+    
+<div id="RightColumn">
       <div id="Activity">
       <span class="ActivityID">
         <button class="Add" value="lap">Add Exercise</button>
@@ -83,7 +88,7 @@
             <li class="ui-state-default"><label>Activity Name</label><input type="text" name="Activities.Activity.name" placeholder="Location"><label>Date</label><input type="text" class="datepicker" name="Activities.Activity.date"></li>
             </ul>
             <button type="submit" id="save" value="Save">Save</button>
-            <button style="display: none" type="submit" id="savecopy" value="Savecopy">Save Copy</button>
+            <!-- <button style="display: none" type="submit" id="savecopy" value="Savecopy">Save Copy</button> -->
             <button type="button" id="cancelform" value="Cancel"/>Cancel</button>
             </form>
       </span>
@@ -101,11 +106,9 @@
         </form>
        </span>
       </div>
-      
+   </div>
     
-      <div id="Activities">
-      <ul id="ActivityList"></ul>
-      </div>
+
 
 
 </div>

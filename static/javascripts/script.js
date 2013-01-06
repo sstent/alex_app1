@@ -17,11 +17,11 @@
                          $( "#movieTemplate1" ).render( json )
                         );
                      $(".ui-accordion-content").css("display", "block");
-                     $("#ActivityList").accordion('destroy').accordion({ 
-                     header: 'h3', 
-                     active: false,
-                     collapsible: true
-                     });
+                     // $("#ActivityList").accordion('destroy').accordion({ 
+                     // header: 'h3', 
+                     // active: false,
+                     // collapsible: true
+                     // });
 
                  });
                     //poulate activity by id
@@ -37,17 +37,21 @@
                      if ("Lap" in json.Activities.Activity) {
                      var array = json.Activities.Activity.Lap;
                         $.each(array, function(index, value) {
-                        ////if run
-                        if ("run" in value) { AddPopulatedLap("Run", value.run.name, value.run.time, value.run.distance, "", "" , "")};
-                        ////if bike
-                        if ("bike" in value) { AddPopulatedLap("Bike", value.bike.name, value.bike.time, value.bike.distance, "", "" , "")};
                         ////if cardio
-                        if ("cardio" in value) { AddPopulatedLap("Cardio", value.cardio.name, value.cardio.time, value.cardio.distance, "", "" , "")};
+                        if ("cardio" in value) { 
+                            //get exercise muscledata
+                            var lapmuscledata = exercise_autocompletedata[value.cardio.selection].muscledata.value;
+                            AddPopulatedLap("Cardio", value.cardio.name, value.cardio.time, value.cardio.distance, "", "" , "", lapmuscledata)
+
+                        };
                         ////if exercise
-                        if ("exercise" in value) { AddPopulatedLap("Exercise", value.exercise.name, "", "", value.exercise.sets, value.exercise.reps , value.exercise.weight)};
-                        ////if rest
-                        if ("rest" in value) { AddPopulatedLap("Rest", "", "", "", "", "" , "")};
-                   }); 
+                        if ("exercise" in value) { 
+                            //get exercise muscledata
+                            console.log("selction = " + value.exercise.selection);
+                            var lapmuscledata = exercise_autocompletedata[value.exercise.selection].muscledata.value;
+                            AddPopulatedLap("Exercise", value.exercise.name, "", "", value.exercise.sets, value.exercise.reps , value.exercise.weight , lapmuscledata)
+                        };
+                        }); 
                    
                    };
                         $('#savecopy').attr('style', 'display: block');
@@ -59,8 +63,9 @@
                         
                 });
 
-            function AddPopulatedLap(type, name, time, distance, sets, reps, weight) {
+            function AddPopulatedLap(type, name, time, distance, sets, reps, weight, muscledata) {
                     console.log('type= ' + type);
+                    console.log('muscledata= ' + muscledata);
                     var newElem = $('.new-lap').clone(true).attr('style', 'display: block');
                     $(newElem).removeClass('new-lap');
                     $(newElem).appendTo('#sortable');
@@ -72,6 +77,7 @@
                     $(newElem).find('.sets').attr('value', sets);
                     $(newElem).find('.reps').attr('value', reps);
                     $(newElem).find('.weight').attr('value', weight);
+                    $(newElem).find('.muscledata').attr('value', muscledata);
                     $(newElem).sortable( "refresh" );
                    };
                        
@@ -95,22 +101,23 @@
                     exercise_autocompletedata = array;
                     $('#sortable').trigger('sortupdate');  
                     $.each(array, function(index, value) {
-                    $( "ul#sortableexercises" ).append('<li class=ui-state-default><input type="text" name="exercise[].name" value="'+ value.name + '"><input type="text" name="exercise[].muscledata" value="'+ value.muscledata + '"><a href=# class=delete>delete</a></li>')
-                   });
+                    $( "ul#sortableexercises" ).append('<li class=ui-state-default><input type="text" name="exercise[].name" value="'+ value.name + '"><input type="text" name="exercise[].class" value="'+ value.class + '"><input type="text" name="exercise[].muscledata" value="'+ value.muscledata + '"><a href=# class=delete>delete</a></li>');
+                    $('#sortableexercises').trigger('sortupdate');
+                    });
                    
             ////populate expresso sortable
-                 socket.on('populateexpresso', function(json) {
-                     //console.log('#tracks recieved' + JSON.stringify(json, null, '	'));
-                     var content = "";
-                    $('ul#sortableexpresso li').remove();
-                    $('span.ExpressoID').attr('docid',json[0]._id);
-                    var barray = json[0].track.name;
-                    bike_autocompletedata = barray;
-                    $('#sortable').trigger('sortupdate');  
-                    $.each(barray, function(index, value) {
-                    $( "ul#sortableexpresso" ).append('<li class=ui-state-default><input type="text" name="track.name[]" value="'+ value + '"></li>')
-                   });
-                   });
+                 // socket.on('populateexpresso', function(json) {
+                 //     //console.log('#tracks recieved' + JSON.stringify(json, null, '	'));
+                 //     var content = "";
+                 //    $('ul#sortableexpresso li').remove();
+                 //    $('span.ExpressoID').attr('docid',json[0]._id);
+                 //    var barray = json[0].track.name;
+                 //    bike_autocompletedata = barray;
+                 //    $('#sortable').trigger('sortupdate');  
+                 //    $.each(barray, function(index, value) {
+                 //    $( "ul#sortableexpresso" ).append('<li class=ui-state-default><input type="text" name="track.name[]" value="'+ value + '"></li>')
+                 //   });
+                 //   });
                     
             });      
                                   
@@ -131,12 +138,7 @@
                     if (ui.index == 2) { 
                     console.log('send stuff ' + ui.index );
                     socket.emit('getexercises', 'please');
-                    };
-                    // if (ui.index == 3) { 
-                    // console.log('send stuff ' + ui.index );
-                    // socket.emit('getexpresso', 'please');
-                    // };
-                    
+                    };                   
             });
                          
             $('#ActivityList').delegate('a.activitydelete', 'click', function() {   
@@ -160,12 +162,13 @@
             });                                
 
             $("#sortable").bind('sortupdate', function(event, ui) {
+
+
                         $('#sortable li').each(function(){
                             var itemindex= $(this).index()
                             $(this).children('label.uiindex').html('Exercise '+ itemindex );
                             $(this).find('input').each(function(){
                                 var newname = $(this).attr('name').replace(/\[[0-9]*\]/,'[' + itemindex  + ']');
-                                //console.log('newname' + newname );
                                 $(this).attr("name",newname);
                             });
                             
@@ -182,7 +185,7 @@
             $("#sortableexercises").bind('sortupdate', function(event, ui) {
                         $('#sortableexercises li').each(function(){
                             var itemindex= $(this).index()
-                            $(this).find('input').each(function(){
+                            $(this).find('input, select').each(function(){
                                 var newname = $(this).attr('name').replace(/\[[0-9]*\]/,'[' + itemindex  + ']');
                                 console.log('newname' + newname );
                                 $(this).attr("name",newname);
@@ -194,6 +197,7 @@
             $('ul').on('click', '.delete',function() {
                       $(this).closest('li').remove();
                       $('#sortable').trigger('sortupdate')
+                      // $('#sortableexercises').trigger('sortupdate')
             });
 
             ///All the Buttons
@@ -207,12 +211,15 @@
                         $(newElem).children('input').attr('disabled',false);
                         $(newElem).appendTo('#sortable');
                     $(newElem).sortable( "refresh" );
+
+
                     $('#sortable').trigger('sortupdate');
-                    $('#sortableexercises').trigger('sortupdate');
+                    //$('#sortableexercises').trigger('sortupdate');
             });
 
             $("button.AddExercise").click(function() { 
-                    $( "ul#sortableexercises" ).append('<li class=ui-state-default><input type="text" name="exercise[0].name" hint="Name" placeholder="Exercise Name"><input type="text" name="exercise[0].muscledata" hint="Muscle Array" placeholder="Muscle Array"><a href=# class=delete>delete</a></li>')
+                    $( "ul#sortableexercises" ).append('<li class=ui-state-default><input type="text" name="exercise[].name" hint="Name" placeholder="Exercise Name"><input type="text" name="exercise[].class" placeholder="cardio or weights"><input type="text" name="exercise[].muscledata" hint="Muscle Array" placeholder="Muscle Array"><a href=# class=delete>delete</a></li>')
+               $('#sortableexercises').trigger('sortupdate'); 
                 });
 
             $("button.AddExpresso").click(function() { 
@@ -237,7 +244,10 @@
                      $( "#tabs" ).tabs( "select" , 0 )
                      $('#Activity').find('input.datepicker').datepicker();
                      $('#Activity').find('input.datepicker').datepicker('setDate', new Date());
+                     socket.emit('getactivites', 'please');
+                     socket.emit('getexercises', 'please');
                      return false;
+
             });
                   
             $('#savecopy').click(function() {
@@ -265,6 +275,8 @@
                                // to prevent the page from changing
                          $('ul#sortableexercises li').remove();
                          $( "#tabs" ).tabs( "select" , 0 )
+                          socket.emit('getactivites', 'please');
+                          socket.emit('getexercises', 'please');
                          return false;
             });
               
@@ -289,6 +301,8 @@
                          $('#Activity').find('input.datepicker').datepicker();
                          $('#Activity').find('input.datepicker').datepicker('setDate', new Date());
                          return false;
+                         socket.emit('getactivites', 'please');
+                         socket.emit('getexercises', 'please');
             });
                   
              $('#my-text-link').click(function() { // bind click event to link
@@ -299,12 +313,33 @@
              
             $('ul').on('change', '.laptype',function() {
                    console.log ('value= ' + $(this).val() );
+                   var currentselect;
                    switch($(this).val()) {
                         case "Cardio":
-                            $(this).siblings('span').html('<input type="text" class="lapname" name="Activities.Activity.Lap[0].cardio.name" placeholder="Machine"><input type="text" class="lapdistance" name="Activities.Activity.Lap[0].cardio.distance" placeholder="Distance"><input type="text" class="laptime"  name="Activities.Activity.Lap[0].cardio.time" placeholder="hh:mm:ss"><a href=# class=delete>delete</a>');
+                            $(this).siblings('span').html('<select class="ExerciseDropDownCardio" name="Activities.Activity.Lap[0].cardio.selection"></select><input type="text" class="lapdistance" name="Activities.Activity.Lap[0].cardio.distance" placeholder="Distance"><input type="text" class="laptime"  name="Activities.Activity.Lap[0].cardio.time" placeholder="hh:mm:ss"><a href=# class=delete>delete</a>');
+                                $(exercise_autocompletedata).each(function(index)
+                                 {
+                                     var option = $('<option />');
+                                     if (this.class == 'cardio') { 
+                                          option.attr('value', index).text(this.name);
+                                          $('.ExerciseDropDownCardio').append(option);
+                                        };
+                                 });
+
                             break;
                         case "Exercise":
-                            $(this).siblings('span').html('<input type="text" class="lapname exertags" name="Activities.Activity.Lap[0].exercise.name" placeholder="Exercise Name"><input type="text" class="sets" name="Activities.Activity.Lap[0].exercise.sets" placeholder="Sets"><input type="text" class="reps" name="Activities.Activity.Lap[0].exercise.reps" placeholder="Reps"><input type="text" name="Activities.Activity.Lap[0].exercise.weight" class="weight" placeholder="Weight in KG"><a href=# class=delete>delete</a>');
+                            $(this).siblings('span').html('<select class="ExerciseDropDown" name="Activities.Activity.Lap[0].exercise.selection"></select> <input type="text" class="sets" name="Activities.Activity.Lap[0].exercise.sets" placeholder="Sets"><input type="text" class="reps" name="Activities.Activity.Lap[0].exercise.reps" placeholder="Reps"><input type="text" name="Activities.Activity.Lap[0].exercise.weight" class="weight" placeholder="Weight in KG"><a href=# class=delete>delete</a>');
+                                $(exercise_autocompletedata).each(function(index)
+                                 {
+                                     //console.log(this.name);
+                                     //console.log(this.muscledata);
+                                     console.log("resetingdropdown")
+                                      var option = $('<option />');
+                                        if (this.class == 'weights') { 
+                                          option.attr('value', index).text(this.name);
+                                          $('.ExerciseDropDown').append(option);
+                                        };
+                                 });
                             break;
                     };
                 $('#sortable').trigger('sortupdate')

@@ -151,6 +151,7 @@ io.sockets.on('connection', function(socket) {
 ////////////////////////
     socket.on('addactivity', function(data, docid) {
         console.log('addactivity' + docid);
+        console.log('add_activity_data' + JSON.stringify(data));
         if (docid  === null) {
                  var document_id = new BSON.ObjectID();
          }

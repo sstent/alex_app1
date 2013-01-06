@@ -1,5 +1,5 @@
 body {
-  padding: 50px;
+  padding: 5px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #ccc;
 }
@@ -7,21 +7,22 @@ a {
   color: #0069ff;
 }
 #container {
-  width: 90%;
-  height: 90%;
+  width: 95%;
+  height: 98%;
   margin: 0 auto;
   padding: 40px 20px;
   background: #fff;
   box-shadow: 1px 3px 3px #333;
   border-radius: 5px;
+  float: left;
 }
 #logo {
   text-align: center;
 }
 #display {
-  width: 90%;
-  height: 90%
-  margin: 20px 0 50px;
+  width: 98%;
+  height: 98%
+  margin: 10px 0 10px;
 }
 label {
   margin-left: 5px;
@@ -64,12 +65,7 @@ input[type="text"] {
 padding-left: 30px;
 }
 
-#Activity A {
-position:absolute;
-right:60px;
-vertical-align: middle;
-float: right;
-}
+
 
 .text-label {
     color: #cdcdcd;
@@ -91,12 +87,22 @@ padding-left: 1.5em;
 height: 24px;
 }
 
-
-#ExerciseEditor A {
-position:absolute;
+#Activity A {
+/*position:absolute;*/
 right:60px;
 vertical-align: middle;
 float: right;
 }
 
+#ExerciseEditor A {
+/*position:absolute;*/
+right:60px;
+vertical-align: middle;
+float: right;
+}
+
+#Activities {float:left;}
+/*#ExerciseEditor {float:right;}
+#Activity {float:right;}*/
+#RightColumn {float:right;}
 
