@@ -2,89 +2,63 @@
 /**
  * Module dependencies.
  */
+var eresult;
 var fs = require('fs');
 var path = require('path');
 var mongo = require('mongodb');
+var async = require('async');
 var BSON = mongo.BSONPure;
 var db = require('mongoskin').db('localhost:27017/test');
 var testcollection = db.collection('testcollection');
 var exercisecollection = db.collection('exercisecollection');
-var expressocollection = db.collection('expressocollection');
-var hrdatacollection = db.collection('hrdatacollection');
 var util = require('util');
-var formidable = require('formidable');
-var xml2js = require('xml2js');
-var parser = new xml2js.Parser();
+//var parser = new xml2js.Parser();
 var dateFormat = require('dateformat');
 
 var app = require('http').createServer(function handler(request, response) {
 
     console.log('request starting...;' + request.url);
 
- // switch(request.url) {
- //    case '/upload':
- //            var form = new formidable.IncomingForm(),
- //            files = [],
- //            fields = [];
+  switch(request.url) {
+ 
+     case '/admin':
+ 
+        //var filePath = '.' + request.url;
+        //if (filePath == './')
+            filePath = './admin.html';
 
- //            var tempdirectory = "/tmp/";
+        var extname = path.extname(filePath);
+        var contentType = 'text/html';
+        switch (extname) {
+            case '.js':
+                contentType = 'text/javascript';
+                break;
+            case '.css':
+                contentType = 'text/css';
+                break;
+        }
+        path.exists(filePath, function(exists) {
 
- //            // //tempdirectory changes if the operating system is windows
- //            if(process.platform == "windows")
- //            {
- //                tempdirectory = "c:\\temp\\";
- //            }
- //            form.uploaddir = tempdirectory;
-
- //            //tempDirectory = "c:\\Temp\\";
- //            //form.uploadDir = tempDirectory;
-
- //            form.on('error', function(err) {
- //                response.writeHead(200, {'content-type': 'text/plain'});
- //                response.end('error:\n\n'+util.inspect(err));
- //              });
- //            form.on('field', function(field, value) {
- //                console.log(field, value);
- //                fields.push([field, value]);
- //                });
- //            form.on('file', function(field, file) {
- //                console.log(field, file);
- //                files.push([field, file]);
- //                });
- //            form.on('end', function() {
- //                console.log('-> upload done');
- //                response.writeHead(200, {'content-type': 'text/plain'});
- //                response.write('received fields:\n\n '+util.inspect(fields));
- //                response.write('\n\n');
- //                response.write('received files:\n\n '+util.inspect(files));
- //                });
-
- //            form.parse(request, function(err, fields, files) {
- //                    console.log('-> uploaded -' + files.upload.path);
- //                fs.readFile(files.upload.path, function(err, data) {
- //                parser.parseString(data, function (err, result) {
- //                response.write('received file contents:\n\n ');
-	// 	response.end(JSON.stringify(result));
- //                    console.log('Done');
-
-	// 	//hrdatacollectionJSON.stringify(result)
-	// 	var data = JSON.stringify(result);
-	// 	var buf1 = new Buffer(12);
-	// 	var dataid = JSON.parse(data).Activities.Activity.Id;
-	// 	var datadate = Date.parse(dataid);
- //                //console.log('TCX ID' + JSON.parse(data).Activities.Activity.Id);
-	// 	console.log('TCX ID ' + datadate);
-	// 	var document_id = new BSON.ObjectID(datadate);
- //                console.log('inserted BSONID ' + document_id);
- //                hrdatacollection.update({_id:document_id}, data,{upsert:true} , function(err, result) {
- //                if (err) throw err;
- //                });
-
- //                });
- //            });
- //            });
- //    break;
- //    default:
+            if (exists) {
+                fs.readFile(filePath, function(error, content) {
+                    if (error) {
+                        response.writeHead(500);
+                        response.end();
+                    }
+                    else {
+                        response.writeHead(200, { 'Content-Type': contentType });
+                        response.end(content, 'utf-8');
+                    }
+                });
+            }
+            else {
+                response.writeHead(404);
+                response.end();
+            }
+        });
+     break;
+ //  default case
+     default:
         var filePath = '.' + request.url;
         if (filePath == './')
             filePath = './index.html';
@@ -118,7 +92,7 @@ var app = require('http').createServer(function handler(request, response) {
                 response.end();
             }
         });
- //    }
+     }
 }).listen(3000);
 
 
@@ -129,10 +103,10 @@ io.set("transports", ["websocket"]);
 });
 
 io.sockets.on('connection', function(socket) {
-    console.log('Client connected');
+    // console.log('Client connected');
 
   socket.on('getactivites', function(data) {
-        console.log('getactivites');
+        // console.log('getactivites');
         testcollection.find().toArray(function(err, result) {
             if (err) throw err;
             socket.emit('populateactivities', result);
@@ -140,18 +114,57 @@ io.sockets.on('connection', function(socket) {
     });
 ///////////////////////////////////////
   socket.on('getactivitybyid', function(id) {
-        console.log('getactivitybyid');
+        // console.log('getactivitybyid');
+          
         testcollection.findById(id, function(err, result) {
             if (err) throw err;
-            socket.emit('populateactivitybyid', result);
+                    //console.log('Activity result  = ' + JSON.stringify(result));
+                    //var unpackedresult = JSON.parse(result);
+                    eresult= result;
+                    // var i;
+                    for(i in result.Activities.Activity.Lap) {
+                        //console.log('Activity parse result  = ' + JSON.stringify(item.val1));
+                            console.log('above_i  = ' + i);
+                            ///////////////
+                            getdoc(result.Activities.Activity.Lap[i].selection, i, function(docdata, iteration) {
+                            console.log(docdata);
+                            eresult.Activities.Activity.Lap[iteration].execisename = docdata.exercise.name
+                            eresult.Activities.Activity.Lap[iteration].execiseclass = docdata.exercise.class
+                            eresult.Activities.Activity.Lap[iteration].execisemuscledata = docdata.exercise.muscledata
+
+                            if (iteration == result.Activities.Activity.Lap.length-1)
+                            {
+                             // console.log('fnal round' + iteration);  
+                             socket.emit('populateactivitybyid', result); 
+                            }
+                            
+                            });
+
+                            //////////////////// 
+                            console.log('below_i  = ' + i);
+                            //console.log('DATA  = ' + JSON.stringify(callback));               
+                        };
+            
+                         
         });
     });
 
+function getdoc(docid, iteration, callback) {
+  exercisecollection.findById(docid, function(err, exresult) {
+    if (err) throw err;
+
+   console.log('docid  = ' + docid);
+   console.log('inside_i  = ' + iteration);
+   callback(exresult, iteration);
+  });
+
+}
+                            
 
 ////////////////////////
     socket.on('addactivity', function(data, docid) {
-        console.log('addactivity' + docid);
-        console.log('add_activity_data' + JSON.stringify(data));
+        // console.log('addactivity' + docid);
+        // console.log('add_activity_data' + JSON.stringify(data));
         if (docid  === null) {
                  var document_id = new BSON.ObjectID();
          }
@@ -159,7 +172,7 @@ io.sockets.on('connection', function(socket) {
             var document_id = new BSON.ObjectID(docid);
           }
                 //var document_id = new BSON.ObjectID(docid);
-                console.log('inserted BSONID' + document_id);
+                // console.log('inserted BSONID' + document_id);
                 testcollection.update({_id:document_id}, data,{upsert:true} , function(err, result) {
                 if (err) throw err;
                          exercisecollection.find().toArray(function(err, result) {
@@ -183,16 +196,17 @@ io.sockets.on('connection', function(socket) {
     });
  ///////////////////
      socket.on('getexercises', function(data) {
-     console.log('emit exercises');
+     // console.log('emit exercises');
         exercisecollection.find().toArray(function(err, result) {
             if (err) throw err;
             socket.emit('populateexercises', result);
         });
     });
+/////////////////////
     socket.on('updateexercises', function(data, docid) {
-        console.log('updateexecises' + JSON.stringify(data));
+        // console.log('updateexecises' + JSON.stringify(data));
         if (docid  == 'undefined') {
-                console.log('edited updateexecises' + JSON.stringify(data));
+                //console.log('edited updateexecises' + JSON.stringify(data));
                 exercisecollection.insert(data, function(err, result) {
                 if (err) throw err;
                         exercisecollection.find().toArray(function(err, result) {
@@ -207,17 +221,44 @@ io.sockets.on('connection', function(socket) {
                 if (err) throw err;
                          exercisecollection.find().toArray(function(err, result) {
                          if (err) throw err;
-                             console.log('populateexercises');
+                             //console.log('populateexercises');
                                 socket.emit('populateexercises', result);
                          });
                 });
 
         }
     });
-
+////////////////////
+  socket.on('getexercisebyid', function(id) {
+        // console.log('getexercisebyid');
+        exercisecollection.findById(id, function(err, result) {
+            if (err) throw err;
+            socket.emit('populateexercisebyid', result);
+        });
+    });
 
 
 ////////////////
+        socket.on('delexercise', function(id) {
+            exercisecollection.removeById(id,function(err, reply){
+                if (err) throw err;
+                exercisecollection.find().toArray(function(err, result) {
+                    if (err) throw err;
+                    socket.emit('populateexercises', result);
+            });
+        });
+    });
+//////////////////
+ ///////////////////
+     socket.on('getexerciselist', function(data) {
+     // console.log('emit exercises  = ' + data);
+        exercisecollection.find({'exercise.class': data }).toArray(function(err, result) {
+            if (err) throw err;
+            //console.log('emited exercises  = ' + JSON.stringify(result));
+            socket.emit('populateexerciselist', data , result);
+        });
+    });
+/////////////////////
 });
 
 

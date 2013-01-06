@@ -4,7 +4,7 @@
   , "private": true
   , "dependencies": {
      "formidable": ">= 0.0.1"
-    , "mongoskin": ">= 0.0.1"
+    , "mongodb": ">= 0.0.1"
     , "socket.io": ">= 0.0.1"
     , "dateformat": ">= 0.0.1"
     , "request": "2.11.4"     
