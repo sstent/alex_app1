@@ -2,11 +2,9 @@
 /**
  * Module dependencies.
  */
-var eresult;
 var fs = require('fs');
 var path = require('path');
 var mongo = require('mongodb');
-var async = require('async');
 var BSON = mongo.BSONPure;
 var db = require('mongoskin').db('localhost:27017/test');
 var testcollection = db.collection('testcollection');
@@ -14,7 +12,8 @@ var exercisecollection = db.collection('exercisecollection');
 var util = require('util');
 //var parser = new xml2js.Parser();
 var dateFormat = require('dateformat');
-
+var waiting = 0;
+var waitingj = 0;
 var app = require('http').createServer(function handler(request, response) {
 
     console.log('request starting...;' + request.url);
@@ -105,62 +104,107 @@ io.set("transports", ["websocket"]);
 io.sockets.on('connection', function(socket) {
     // console.log('Client connected');
 
-  socket.on('getactivites', function(data) {
-        // console.log('getactivites');
+  // socket.on('getactivites', function(data) {
+  //       // console.log('getactivites');
+  //       testcollection.find().toArray(function(err, result) {
+  //           if (err) throw err;
+  //           socket.emit('populateactivities', result);
+  //       });
+  //   });
+  ///////////////////////////////////////////
+    socket.on('getactivites', function(data) {
+        console.log('getactivities');
+        waiting = 0;
         testcollection.find().toArray(function(err, result) {
             if (err) throw err;
-            socket.emit('populateactivities', result);
+                    for (j in result) {
+                        console.log('getactivities' + JSON.stringify(result));
+                        var eresult = result;               
+                        var i;
+                        waitingj ++;
+                        for(i in result[j].Activities.Activity.Lap) {
+                                //////////////
+                                waiting ++;
+                                getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
+                                //////////////////// 
+                                console.log('below_i  = ' + i);
+                                //console.log('DATA  = ' + JSON.stringify(callback));               
+                            };
+                    };  
         });
     });
+////////////////////////////////////////
+function deiteratej() {
+    if (!waiting) {
+    waitingj --;   
+    }
+}
+function completeall(result) {
+    if (!waiting) {
+        console.log('done');
+        socket.emit('populateactivities', result);     
+    }
+}
+function complete(result) {
+    if (!waiting) {
+        console.log('done');
+        socket.emit('populateactivitybyid', result);     
+    }
+}
+function getbyidall (result,docid,iteration,iterationtop){
+                           exercisecollection.findById(docid, function(err, exresult) {
+                                    if (err) throw err;
+                                    waiting --;
+                                    console.log('waiting  = ' + waiting);
+                                    console.log('inside_j  = ' + iterationtop)
+                                    console.log('inside_i  = ' + iteration);
+                                    result[iterationtop].Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
+                                    result[iterationtop].Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
+                                    result[iterationtop].Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.class;
+                                    deiteratej();
+                                    completeall(result);
+
+                                 });
+};
+function getbyid (result,docid,iteration){
+                           exercisecollection.findById(docid, function(err, exresult) {
+                                    if (err) throw err;
+                                    waiting --;
+                                    console.log('waiting  = ' + waiting);
+                                    console.log('inside_i  = ' + iteration);
+                                    result.Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
+                                    result.Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
+                                    result.Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.class;
+                                    complete(result);
+                                 });
+};
+
 ///////////////////////////////////////
   socket.on('getactivitybyid', function(id) {
-        // console.log('getactivitybyid');
-          
+        waiting = 0;
         testcollection.findById(id, function(err, result) {
             if (err) throw err;
                     //console.log('Activity result  = ' + JSON.stringify(result));
                     //var unpackedresult = JSON.parse(result);
-                    eresult= result;
-                    // var i;
+                    var eresult = result;
+                    
+                    var i;
                     for(i in result.Activities.Activity.Lap) {
                         //console.log('Activity parse result  = ' + JSON.stringify(item.val1));
                             console.log('above_i  = ' + i);
                             ///////////////
-                            getdoc(result.Activities.Activity.Lap[i].selection, i, function(docdata, iteration) {
-                            console.log(docdata);
-                            eresult.Activities.Activity.Lap[iteration].execisename = docdata.exercise.name
-                            eresult.Activities.Activity.Lap[iteration].execiseclass = docdata.exercise.class
-                            eresult.Activities.Activity.Lap[iteration].execisemuscledata = docdata.exercise.muscledata
-
-                            if (iteration == result.Activities.Activity.Lap.length-1)
-                            {
-                             // console.log('fnal round' + iteration);  
-                             socket.emit('populateactivitybyid', result); 
-                            }
-                            
-                            });
+                            waiting ++;
+                            getbyid(eresult,result.Activities.Activity.Lap[i].selection,i);
 
                             //////////////////// 
                             console.log('below_i  = ' + i);
                             //console.log('DATA  = ' + JSON.stringify(callback));               
                         };
             
+            
                          
         });
     });
-
-function getdoc(docid, iteration, callback) {
-  exercisecollection.findById(docid, function(err, exresult) {
-    if (err) throw err;
-
-   console.log('docid  = ' + docid);
-   console.log('inside_i  = ' + iteration);
-   callback(exresult, iteration);
-  });
-
-}
-                            
-
 ////////////////////////
     socket.on('addactivity', function(data, docid) {
         // console.log('addactivity' + docid);
@@ -188,10 +232,24 @@ function getdoc(docid, iteration, callback) {
         socket.on('delactivity', function(id) {
             testcollection.removeById(id,function(err, reply){
                 if (err) throw err;
-                testcollection.find().toArray(function(err, result) {
-                    if (err) throw err;
-                    socket.emit('populateactivities', result);
-            });
+                       waiting = 0;
+                        testcollection.find().toArray(function(err, result) {
+                            if (err) throw err;
+                                    for (j in result) {
+                                        console.log('getactivities' + JSON.stringify(result));
+                                        var eresult = result;               
+                                        var i;
+                                        waitingj ++;
+                                        for(i in result[j].Activities.Activity.Lap) {
+                                                //////////////
+                                                waiting ++;
+                                                getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
+                                                //////////////////// 
+                                                console.log('below_i  = ' + i);
+                                                //console.log('DATA  = ' + JSON.stringify(callback));               
+                                            };
+                                    };  
+                        });
         });
     });
  ///////////////////
