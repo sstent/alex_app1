@@ -4,30 +4,31 @@
  */
 var fs = require('fs');
 var path = require('path');
-var mongo = require('mongodb');
+//var mongo = require('mongodb');
+var mongo = require('mongoskin');
 var BSON = mongo.BSONPure;
-var db = require('mongoskin').db('localhost:27017/test');
+var db = mongo.db('localhost:27017/test');
 var testcollection = db.collection('testcollection');
 var exercisecollection = db.collection('exercisecollection');
 var util = require('util');
 //var parser = new xml2js.Parser();
-var dateFormat = require('dateformat');
 var waiting = 0;
 var waitingj = 0;
 var app = require('http').createServer(function handler(request, response) {
+var extname;
 
-    console.log('request starting...;' + request.url);
+console.log('request starting...;' + request.url);
 
   switch(request.url) {
- 
+
      case '/admin':
- 
+
         //var filePath = '.' + request.url;
         //if (filePath == './')
             filePath = './admin.html';
 
-        var extname = path.extname(filePath);
-        var contentType = 'text/html';
+        extname = path.extname(filePath);
+        contentType = 'text/html';
         switch (extname) {
             case '.js':
                 contentType = 'text/javascript';
@@ -56,14 +57,16 @@ var app = require('http').createServer(function handler(request, response) {
             }
         });
      break;
+    case '/placeholder':
+        break;
  //  default case
      default:
         var filePath = '.' + request.url;
         if (filePath == './')
             filePath = './index.html';
 
-        var extname = path.extname(filePath);
-        var contentType = 'text/html';
+        extname = path.extname(filePath);
+        contentType = 'text/html';
         switch (extname) {
             case '.js':
                 contentType = 'text/javascript';
@@ -115,40 +118,41 @@ io.sockets.on('connection', function(socket) {
     socket.on('getactivites', function(data) {
         console.log('getactivities');
         waiting = 0;
+        waitingj = 0;
         testcollection.find().toArray(function(err, result) {
             if (err) throw err;
-                    for (j in result) {
+                    for (var j in result) {
                         console.log('getactivities' + JSON.stringify(result));
-                        var eresult = result;               
+                        var eresult = result;
                         var i;
                         waitingj ++;
                         for(i in result[j].Activities.Activity.Lap) {
                                 //////////////
                                 waiting ++;
                                 getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
-                                //////////////////// 
+                                ////////////////////
                                 console.log('below_i  = ' + i);
-                                //console.log('DATA  = ' + JSON.stringify(callback));               
-                            };
-                    };  
+                                //console.log('DATA  = ' + JSON.stringify(callback));
+                            }
+                    }
         });
     });
 ////////////////////////////////////////
 function deiteratej() {
     if (!waiting) {
-    waitingj --;   
+    waitingj --;
     }
 }
 function completeall(result) {
     if (!waiting) {
         console.log('done');
-        socket.emit('populateactivities', result);     
+        socket.emit('populateactivities', result);
     }
 }
 function complete(result) {
     if (!waiting) {
         console.log('done');
-        socket.emit('populateactivitybyid', result);     
+        socket.emit('populateactivitybyid', result);
     }
 }
 function getbyidall (result,docid,iteration,iterationtop){
@@ -156,16 +160,16 @@ function getbyidall (result,docid,iteration,iterationtop){
                                     if (err) throw err;
                                     waiting --;
                                     console.log('waiting  = ' + waiting);
-                                    console.log('inside_j  = ' + iterationtop)
+                                    console.log('inside_j  = ' + iterationtop);
                                     console.log('inside_i  = ' + iteration);
                                     result[iterationtop].Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
                                     result[iterationtop].Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
-                                    result[iterationtop].Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.class;
+                                    result[iterationtop].Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.type;
                                     deiteratej();
                                     completeall(result);
 
                                  });
-};
+}
 function getbyid (result,docid,iteration){
                            exercisecollection.findById(docid, function(err, exresult) {
                                     if (err) throw err;
@@ -174,10 +178,10 @@ function getbyid (result,docid,iteration){
                                     console.log('inside_i  = ' + iteration);
                                     result.Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
                                     result.Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
-                                    result.Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.class;
+                                    result.Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.type;
                                     complete(result);
                                  });
-};
+}
 
 ///////////////////////////////////////
   socket.on('getactivitybyid', function(id) {
@@ -187,7 +191,7 @@ function getbyid (result,docid,iteration){
                     //console.log('Activity result  = ' + JSON.stringify(result));
                     //var unpackedresult = JSON.parse(result);
                     var eresult = result;
-                    
+
                     var i;
                     for(i in result.Activities.Activity.Lap) {
                         //console.log('Activity parse result  = ' + JSON.stringify(item.val1));
@@ -196,24 +200,25 @@ function getbyid (result,docid,iteration){
                             waiting ++;
                             getbyid(eresult,result.Activities.Activity.Lap[i].selection,i);
 
-                            //////////////////// 
+                            ////////////////////
                             console.log('below_i  = ' + i);
-                            //console.log('DATA  = ' + JSON.stringify(callback));               
-                        };
-            
-            
-                         
+                            //console.log('DATA  = ' + JSON.stringify(callback));
+                        }
+
+
+
         });
     });
 ////////////////////////
     socket.on('addactivity', function(data, docid) {
+        var document_id;
         // console.log('addactivity' + docid);
         // console.log('add_activity_data' + JSON.stringify(data));
         if (docid  === null) {
-                 var document_id = new BSON.ObjectID();
+                 document_id = new BSON.ObjectID();
          }
          else {
-            var document_id = new BSON.ObjectID(docid);
+            document_id = new BSON.ObjectID(docid);
           }
                 //var document_id = new BSON.ObjectID(docid);
                 // console.log('inserted BSONID' + document_id);
@@ -233,22 +238,23 @@ function getbyid (result,docid,iteration){
             testcollection.removeById(id,function(err, reply){
                 if (err) throw err;
                        waiting = 0;
+                       waitingj = 0;
                         testcollection.find().toArray(function(err, result) {
                             if (err) throw err;
-                                    for (j in result) {
+                                    for (var j in result) {
                                         console.log('getactivities' + JSON.stringify(result));
-                                        var eresult = result;               
+                                        var eresult = result;
                                         var i;
                                         waitingj ++;
                                         for(i in result[j].Activities.Activity.Lap) {
                                                 //////////////
                                                 waiting ++;
                                                 getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
-                                                //////////////////// 
+                                                ////////////////////
                                                 console.log('below_i  = ' + i);
-                                                //console.log('DATA  = ' + JSON.stringify(callback));               
-                                            };
-                                    };  
+                                                //console.log('DATA  = ' + JSON.stringify(callback));
+                                            }
+                                    }
                         });
         });
     });
@@ -310,9 +316,9 @@ function getbyid (result,docid,iteration){
  ///////////////////
      socket.on('getexerciselist', function(data) {
      // console.log('emit exercises  = ' + data);
-        exercisecollection.find({'exercise.class': data }).toArray(function(err, result) {
+        exercisecollection.find({'exercise.type': data }).toArray(function(err, result) {
             if (err) throw err;
-            //console.log('emited exercises  = ' + JSON.stringify(result));
+            console.log('emited exercises  = ' + JSON.stringify(result));
             socket.emit('populateexerciselist', data , result);
         });
     });

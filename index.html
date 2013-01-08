@@ -20,17 +20,17 @@
       <div class="workoutdata">
           <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
           <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
-          {{if Activities.Activity.Lap}}  
+          {{if Activities.Activity.Lap}}
             {{for Activities.Activity.Lap}}
-                      <p>Workout step {{:#index+1}} - 
+                      <p>Workout step {{:#index+1}} -
                       {{if class == 'Cardio' }} Cardio - {{:exercisename}} - {{:distance}} x {{:time}} -- {{:exercisemuscledata}} {{/if}}
                       {{if class == 'Exercise' }} Exercise - {{:exercisename}} - {{:sets}} x {{:reps}} with {{:weight}} Kg  -- {{:exercisemuscledata}}{{/if}}
                       </p>
-                      
+
             {{/for}}
-          {{/if}}            
+          {{/if}}
       </div>
-      
+
     </script>
     <script id="DataTemplate1" type="text/x-jsrender">
       <h3>{{:Activities.Activity.date}}</h3>
@@ -39,7 +39,7 @@
           <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
           <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
       </div>
-      
+
     </script>
 
 
@@ -49,14 +49,14 @@
 <div id="container">
 <div id="logo"><H1>BodyREP Demo</h1></div>
 <div id="display">
- 
+
 <ul>
 <li style="display: none" class="new-lap ui-state-default removable">
             <label class="uiindex"></label>
             <select class="laptype" name="Activities.Activity.Lap[0].class">
               <option value="">Select...</option>
               <option value="Cardio">Cardio</option>
-              <option value="Exercise">Weights</option>  
+              <option value="Exercise">Weights</option>
             </select>
           <span><a href=# class=delete>delete</a></span>
 </li>
@@ -65,7 +65,7 @@
       <div id="Activities">
       <ul id="ActivityList"></ul>
       </div>
-    
+
 <div id="RightColumn">
       <div id="Activity">
       <span class="ActivityID">
@@ -79,14 +79,14 @@
             <button class="Add" value="lap">Add Exercise</button>
       </span>
       </div>
-      
 
-    
+
+
 
 </div>
     </div>
  </div>
-      
+
 
 </div></body>
 </html>

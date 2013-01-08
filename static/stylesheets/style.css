@@ -3,9 +3,11 @@ body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background: #ccc;
 }
+
 a {
   color: #0069ff;
 }
+
 #container {
   width: 95%;
   height: 98%;
@@ -16,14 +18,18 @@ a {
   border-radius: 5px;
   float: left;
 }
+
 #logo {
   text-align: center;
+
 }
+
 #display {
   width: 98%;
-  height: 98%
+  height: 98%;
   margin: 10px 0 10px;
 }
+
 label {
   margin-left: 5px;
   margin-right: 5px;
@@ -37,7 +43,9 @@ label {
   vertical-align: middle;
   text-align:center;
 }
-label.uiindex {
+
+
+.uiindex {
   margin-left: 20px;
    width: 70px;
 }
@@ -61,7 +69,7 @@ input[type="text"] {
   vertical-align: middle;
 }
 
-#employees h3{
+#employees{
 padding-left: 30px;
 }
 
