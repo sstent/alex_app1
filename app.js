@@ -5,6 +5,7 @@
 var fs = require('fs');
 var path = require('path');
 //var mongo = require('mongodb');
+var async = require('async');
 var mongo = require('mongoskin');
 var BSON = mongo.BSONPure;
 var db = mongo.db('localhost:27017/test');
@@ -120,12 +121,24 @@ io.sockets.on('connection', function(socket) {
         waiting = 0;
         waitingj = 0;
         testcollection.find().toArray(function(err, result) {
+   
+
             if (err) throw err;
                     for (var j in result) {
                         console.log('getactivities' + JSON.stringify(result));
                         var eresult = result;
                         var i;
                         waitingj ++;
+                        async.forEach(j, function(item,callback) {
+                                        console.log('iteration ' + item);
+                                        console.log('in async' + JSON.stringify(result[item]));
+                                        result[item]._IDcopy = result[item]._id;
+                                    }, function(err){
+
+                        // if any of the saves produced an error, err would equal that error
+                        });
+
+
                         for(i in result[j].Activities.Activity.Lap) {
                                 //////////////
                                 waiting ++;

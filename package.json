@@ -5,6 +5,7 @@
   , "dependencies": {
       "mongoskin": ">= 0.0.1"
     , "socket.io": ">= 0.0.1"
+    , "async": ">= 0.0.1"
     , "request": "2.11.4"
   }
 }
