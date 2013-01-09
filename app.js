@@ -12,20 +12,15 @@ var db = mongo.db('localhost:27017/test');
 var testcollection = db.collection('testcollection');
 var exercisecollection = db.collection('exercisecollection');
 var util = require('util');
-//var parser = new xml2js.Parser();
-var waiting = 0;
-var waitingj = 0;
+//var extname;
 var app = require('http').createServer(function handler(request, response) {
-var extname;
+
 
 console.log('request starting...;' + request.url);
 
   switch(request.url) {
 
      case '/admin':
-
-        //var filePath = '.' + request.url;
-        //if (filePath == './')
             filePath = './admin.html';
 
         extname = path.extname(filePath);
@@ -118,107 +113,42 @@ io.sockets.on('connection', function(socket) {
   ///////////////////////////////////////////
     socket.on('getactivites', function(data) {
         console.log('getactivities');
-        waiting = 0;
-        waitingj = 0;
         testcollection.find().toArray(function(err, result) {
-   
-
             if (err) throw err;
-                    for (var j in result) {
-                        console.log('getactivities' + JSON.stringify(result));
-                        var eresult = result;
-                        var i;
-                        waitingj ++;
-                        async.forEach(j, function(item,callback) {
-                                        console.log('iteration ' + item);
-                                        console.log('in async' + JSON.stringify(result[item]));
-                                        result[item]._IDcopy = result[item]._id;
-                                    }, function(err){
-
-                        // if any of the saves produced an error, err would equal that error
-                        });
-
-
-                        for(i in result[j].Activities.Activity.Lap) {
-                                //////////////
-                                waiting ++;
-                                getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
-                                ////////////////////
-                                console.log('below_i  = ' + i);
-                                //console.log('DATA  = ' + JSON.stringify(callback));
-                            }
-                    }
+                        async.forEachSeries(result, 
+                            function(item,callback2) {
+                                async.forEachSeries(item.Activities.Activity.Lap, 
+                                    function(itemx,callback3){
+                                        exercisecollection.findById(itemx.selection, function(err, exresult) {
+                                            if (err) throw err;
+                                                itemx.exercisename = exresult.exercise.name;
+                                                itemx.exercisemuscledata = exresult.exercise.muscledata;
+                                                itemx.exerciseclass = exresult.exercise.type;
+                                        callback3();
+                                        });
+                            }, function(err){
+                                callback2();
+                            });                       
+                         }, function(err){
+                            socket.emit('populateactivities', result); 
+                         });
         });
-    });
-////////////////////////////////////////
-function deiteratej() {
-    if (!waiting) {
-    waitingj --;
-    }
-}
-function completeall(result) {
-    if (!waiting) {
-        console.log('done');
-        socket.emit('populateactivities', result);
-    }
-}
-function complete(result) {
-    if (!waiting) {
-        console.log('done');
-        socket.emit('populateactivitybyid', result);
-    }
-}
-function getbyidall (result,docid,iteration,iterationtop){
-                           exercisecollection.findById(docid, function(err, exresult) {
-                                    if (err) throw err;
-                                    waiting --;
-                                    console.log('waiting  = ' + waiting);
-                                    console.log('inside_j  = ' + iterationtop);
-                                    console.log('inside_i  = ' + iteration);
-                                    result[iterationtop].Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
-                                    result[iterationtop].Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
-                                    result[iterationtop].Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.type;
-                                    deiteratej();
-                                    completeall(result);
-
-                                 });
-}
-function getbyid (result,docid,iteration){
-                           exercisecollection.findById(docid, function(err, exresult) {
-                                    if (err) throw err;
-                                    waiting --;
-                                    console.log('waiting  = ' + waiting);
-                                    console.log('inside_i  = ' + iteration);
-                                    result.Activities.Activity.Lap[iteration].exercisename = exresult.exercise.name;
-                                    result.Activities.Activity.Lap[iteration].exercisemuscledata = exresult.exercise.muscledata;
-                                    result.Activities.Activity.Lap[iteration].exerciseclass = exresult.exercise.type;
-                                    complete(result);
-                                 });
-}
-
+});
 ///////////////////////////////////////
-  socket.on('getactivitybyid', function(id) {
-        waiting = 0;
+    socket.on('getactivitybyid', function(id) {
         testcollection.findById(id, function(err, result) {
             if (err) throw err;
-                    //console.log('Activity result  = ' + JSON.stringify(result));
-                    //var unpackedresult = JSON.parse(result);
-                    var eresult = result;
 
-                    var i;
-                    for(i in result.Activities.Activity.Lap) {
-                        //console.log('Activity parse result  = ' + JSON.stringify(item.val1));
-                            console.log('above_i  = ' + i);
-                            ///////////////
-                            waiting ++;
-                            getbyid(eresult,result.Activities.Activity.Lap[i].selection,i);
-
-                            ////////////////////
-                            console.log('below_i  = ' + i);
-                            //console.log('DATA  = ' + JSON.stringify(callback));
-                        }
-
-
+                                async.forEachSeries(item.Activities.Activity.Lap, 
+                                    function(itemx,callback3){
+                                        exercisecollection.findById(itemx.selection, function(err, exresult) {
+                                            if (err) throw err;
+                                                itemx.exercisename = exresult.exercise.name;
+                                                itemx.exercisemuscledata = exresult.exercise.muscledata;
+                                                itemx.exerciseclass = exresult.exercise.type;
+                                        callback3();
+                                        });
+                            }, function(err){callback2();});
 
         });
     });
