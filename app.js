@@ -101,15 +101,6 @@ io.set("transports", ["websocket"]);
 });
 
 io.sockets.on('connection', function(socket) {
-    // console.log('Client connected');
-
-  // socket.on('getactivites', function(data) {
-  //       // console.log('getactivites');
-  //       testcollection.find().toArray(function(err, result) {
-  //           if (err) throw err;
-  //           socket.emit('populateactivities', result);
-  //       });
-  //   });
   ///////////////////////////////////////////
     socket.on('getactivites', function(data) {
         console.log('getactivities');
@@ -180,25 +171,10 @@ io.sockets.on('connection', function(socket) {
         socket.on('delactivity', function(id) {
             testcollection.removeById(id,function(err, reply){
                 if (err) throw err;
-                       waiting = 0;
-                       waitingj = 0;
-                        testcollection.find().toArray(function(err, result) {
-                            if (err) throw err;
-                                    for (var j in result) {
-                                        console.log('getactivities' + JSON.stringify(result));
-                                        var eresult = result;
-                                        var i;
-                                        waitingj ++;
-                                        for(i in result[j].Activities.Activity.Lap) {
-                                                //////////////
-                                                waiting ++;
-                                                getbyidall(eresult,result[j].Activities.Activity.Lap[i].selection,i,j);
-                                                ////////////////////
-                                                console.log('below_i  = ' + i);
-                                                //console.log('DATA  = ' + JSON.stringify(callback));
-                                            }
-                                    }
-                        });
+                testcollection.find().toArray(function(err, result) {
+                    if (err) throw err;
+                    socket.emit('populateactivities', result);
+            });
         });
     });
  ///////////////////
@@ -211,9 +187,7 @@ io.sockets.on('connection', function(socket) {
     });
 /////////////////////
     socket.on('updateexercises', function(data, docid) {
-        // console.log('updateexecises' + JSON.stringify(data));
         if (docid  == 'undefined') {
-                //console.log('edited updateexecises' + JSON.stringify(data));
                 exercisecollection.insert(data, function(err, result) {
                 if (err) throw err;
                         exercisecollection.find().toArray(function(err, result) {
@@ -228,16 +202,13 @@ io.sockets.on('connection', function(socket) {
                 if (err) throw err;
                          exercisecollection.find().toArray(function(err, result) {
                          if (err) throw err;
-                             //console.log('populateexercises');
                                 socket.emit('populateexercises', result);
                          });
                 });
-
         }
     });
 ////////////////////
   socket.on('getexercisebyid', function(id) {
-        // console.log('getexercisebyid');
         exercisecollection.findById(id, function(err, result) {
             if (err) throw err;
             socket.emit('populateexercisebyid', result);
@@ -256,9 +227,7 @@ io.sockets.on('connection', function(socket) {
         });
     });
 //////////////////
- ///////////////////
      socket.on('getexerciselist', function(data) {
-     // console.log('emit exercises  = ' + data);
         exercisecollection.find({'exercise.type': data }).toArray(function(err, result) {
             if (err) throw err;
             console.log('emited exercises  = ' + JSON.stringify(result));
