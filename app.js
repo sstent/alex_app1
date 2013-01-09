@@ -106,23 +106,32 @@ io.sockets.on('connection', function(socket) {
         console.log('getactivities');
         testcollection.find().toArray(function(err, result) {
             if (err) throw err;
-                        async.forEachSeries(result, 
-                            function(item,callback2) {
-                                async.forEachSeries(item.Activities.Activity.Lap, 
-                                    function(itemx,callback3){
-                                        exercisecollection.findById(itemx.selection, function(err, exresult) {
-                                            if (err) throw err;
-                                                itemx.exercisename = exresult.exercise.name;
-                                                itemx.exercisemuscledata = exresult.exercise.muscledata;
-                                                itemx.exerciseclass = exresult.exercise.type;
-                                        callback3();
-                                        });
-                            }, function(err){
-                                callback2();
-                            });                       
-                         }, function(err){
-                            socket.emit('populateactivities', result); 
-                         });
+                async.forEachSeries(result, 
+                    function(item,callback2) {
+                        async.forEachSeries(item.Activities.Activity.Lap, 
+                            function(itemx,callback3){
+                                exercisecollection.findById(itemx.selection, function(err, exresult) {
+                                    if (err) throw err;
+                                        itemx.exercisename = exresult.exercise.name;
+                                        itemx.exercisemuscledata = exresult.exercise.muscledata;
+                                        itemx.exerciseclass = exresult.exercise.type;
+                                callback3();
+                                });
+                    }, function(err){
+                        callback2();
+                    });                       
+                }, function(err){
+                    /////////THIS is psuedo code for adding the activity arrays
+                    //combinedarray = [0,0,0,0,0,0]
+                    // for j in result
+                       // do 
+                            //for i in (1..6)
+                                // do 
+                                // combinedarray[i] =  result[j].exercisemuscledata[i] + combinedarray[i]
+                            // 
+                    // result.combinedarray = combinedarray
+                    socket.emit('populateactivities', result); 
+                });
         });
 });
 ///////////////////////////////////////
@@ -146,16 +155,12 @@ io.sockets.on('connection', function(socket) {
 ////////////////////////
     socket.on('addactivity', function(data, docid) {
         var document_id;
-        // console.log('addactivity' + docid);
-        // console.log('add_activity_data' + JSON.stringify(data));
         if (docid  === null) {
                  document_id = new BSON.ObjectID();
          }
          else {
             document_id = new BSON.ObjectID(docid);
           }
-                //var document_id = new BSON.ObjectID(docid);
-                // console.log('inserted BSONID' + document_id);
                 testcollection.update({_id:document_id}, data,{upsert:true} , function(err, result) {
                 if (err) throw err;
                          exercisecollection.find().toArray(function(err, result) {
@@ -179,7 +184,6 @@ io.sockets.on('connection', function(socket) {
     });
  ///////////////////
      socket.on('getexercises', function(data) {
-     // console.log('emit exercises');
         exercisecollection.find().toArray(function(err, result) {
             if (err) throw err;
             socket.emit('populateexercises', result);
