@@ -114,7 +114,7 @@ io.sockets.on('connection', function(socket) {
                                     if (err) throw err;
                                         itemx.exercisename = exresult.exercise.name;
                                         itemx.exercisemuscledata = exresult.exercise.muscledata;
-                                        itemx.exerciseclass = exresult.exercise.type;
+                                        itemx.exercisetype = exresult.exercise.type;
                                 callback3();
                                 });
                     }, function(err){
@@ -139,16 +139,18 @@ io.sockets.on('connection', function(socket) {
         testcollection.findById(id, function(err, result) {
             if (err) throw err;
 
-                                async.forEachSeries(item.Activities.Activity.Lap, 
+                                async.forEachSeries(result.Activities.Activity.Lap, 
                                     function(itemx,callback3){
                                         exercisecollection.findById(itemx.selection, function(err, exresult) {
                                             if (err) throw err;
                                                 itemx.exercisename = exresult.exercise.name;
                                                 itemx.exercisemuscledata = exresult.exercise.muscledata;
-                                                itemx.exerciseclass = exresult.exercise.type;
+                                                itemx.exercisetype = exresult.exercise.type;
                                         callback3();
                                         });
-                            }, function(err){callback2();});
+                            }, function(err){
+                                socket.emit('populateactivitybyid', result);
+                                });
 
         });
     });

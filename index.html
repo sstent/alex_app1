@@ -33,22 +33,20 @@
 
     </script>
     <script id="DataTemplate1" type="text/x-jsrender">
-      <h3>{{:Activities.Activity.date}}</h3>
-      <div class="workoutdata">
-          <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
-          <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
-      </div>
+    //   <h3>{{:Activities.Activity.date}}</h3>
+    //   <div class="workoutdata">
+    //       <a  href=# class="activitydelete" title="{{:_id}}" >Delete</a>
+    //       <a  href=# class="activityedit" title="{{:_id}}" >Edit</a>
+    //   </div>
 
-    </script>
-
-
+    // </script>
 
   </head>
   <body>
 <div id="container">
 <div id="logo"><H1>BodyREP Demo</h1></div>
 <div id="display">
-
+<button type="button" id="openactivities" value="AddExercise"/>Add New Workout</button>
 <ul>
 <li style="display: none" class="new-lap ui-state-default removable">
             <label class="uiindex"></label>
@@ -65,7 +63,6 @@
       <ul id="ActivityList"></ul>
       </div>
 
-<div id="RightColumn">
       <div id="Activity">
       <span class="ActivityID">
             <form id="myForm">
@@ -82,7 +79,6 @@
 
 
 
-</div>
     </div>
  </div>
 

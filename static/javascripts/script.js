@@ -2,21 +2,21 @@ $(document).ready(function() {
     //makes buttons buttons
     $("button").button();
 
-// $("#Activity").dialog({ autoOpen: false });
-//    $( "#Activity" ).dialog( "option", "minHeight", 330 );
-//    $( "#Activity" ).dialog( "option", "minWidth", 730 );
-//    $( "#Activity" ).dialog({ buttons: [
-//         {
-//             text: "Close/Cancel",
-//             click: function() { $(this).dialog("close"); }
-//         }
-//         ]
-//     });
+$("#Activity").dialog({ autoOpen: false });
+   $( "#Activity" ).dialog( "option", "minHeight", 330 );
+   $( "#Activity" ).dialog( "option", "minWidth", 830 );
+   $( "#Activity" ).dialog({ buttons: [
+        {
+            text: "Close/Cancel",
+            click: function() { $(this).dialog("close"); }
+        }
+        ]
+    });
 
-//     $("button#openactivities").click(function() {
-// //
-//         $("#Activity").dialog("open");
-//        });
+    $("button#openactivities").click(function() {
+//
+        $("#Activity").dialog("open");
+       });
 
 
 
@@ -60,7 +60,7 @@ $(document).ready(function() {
         $('#Activity').find('input').attr('value','');
         $('#Activity').find('input.datepicker').datepicker();
         $('#Activity').find('input.datepicker').datepicker('setDate', new Date());
-
+        console.log('populateactivity' + JSON.stringify(json));
      //set document id
         $('span.ActivityID').attr('docid',json._id);
      //poulate name
@@ -73,12 +73,12 @@ $(document).ready(function() {
          var array = json.Activities.Activity.Lap;
             $.each(array, function(index, value) {
         ////if cardio
-            if (value.type == "Cardio" ) {
+            if (value.exercisetype == "Cardio" ) {
                 //get exercise muscledata
                 AddPopulatedLap("Cardio", value.name, value.time, value.distance, "", "" , "", value.exercisemuscledata);
             }
         ////if exercise
-            if (value.type == "Exercise" ) {
+            if (value.exercisetype == "Exercise" ) {
                 //get exercise muscledata
                 console.log("selction = " + value.selection);
                 AddPopulatedLap("Exercise", value.name, "", "", value.sets, value.reps , value.weight , value.exercisemuscledata);
@@ -214,13 +214,18 @@ $(document).ready(function() {
            var currentselect;
            switch($(this).val()) {
                 case "Cardio":
-                    $(this).siblings('span').html('<select class="ExerciseDropDownCardio" name="Activities.Activity.Lap[0].selection"></select><input type="text" class="lapdistance" name="Activities.Activity.Lap[0].distance" placeholder="Distance"><input type="text" class="laptime"  name="Activities.Activity.Lap[0].time" placeholder="hh:mm:ss"><input style="display: none" type=text class="muscledata" name="Activities.Activity.Lap[0].muscledata"><a href=# class=delete>delete</a>');
-
-                         socket.emit('getexerciselist', 'Cardio');
+                    //  var newElem = $('<select class="ExerciseDropDownCardio" name="Activities.Activity.Lap[0].selection"></select>');
+                    //  $(newElem).append('<input type="text" class="lapdistance" name="Activities.Activity.Lap[0].distance" placeholder="Distance">');
+                    //  $(newElem).append('<input type="text" class="laptime"  name="Activities.Activity.Lap[0].time" placeholder="hh:mm:ss">');
+                    //  $(newElem).append('<a href=# class=delete>delete</a>');
+                    //  $(this).siblings('span').append(newElem);
+                    $(this).siblings('span').html('<select class="ExerciseDropDownCardio" name="Activities.Activity.Lap[0].selection"></select><input type="text" class="lapdistance" name="Activities.Activity.Lap[0].distance" placeholder="Distance"><input type="text" class="laptime"  name="Activities.Activity.Lap[0].time" placeholder="hh:mm:ss"><a href=# class=delete>delete</a>');
+                    
+                    socket.emit('getexerciselist', 'Cardio');
 
                     break;
                 case "Exercise":
-                    $(this).siblings('span').html('<select class="ExerciseDropDownWeights" name="Activities.Activity.Lap[0].selection"></select> <input type="text" class="sets" name="Activities.Activity.Lap[0].sets" placeholder="Sets"><input type="text" class="reps" name="Activities.Activity.Lap[0].reps" placeholder="Reps"><input type="text" name="Activities.Activity.Lap[0].weight" class="weight" placeholder="Weight in KG"><input style="display: none" type=text class="muscledata" name="Activities.Activity.Lap[0].muscledata"><a href=# class=delete>delete</a>');
+                    $(this).siblings('span').html('<select class="ExerciseDropDownWeights" name="Activities.Activity.Lap[0].selection"></select> <input type="text" class="sets" name="Activities.Activity.Lap[0].sets" placeholder="Sets"><input type="text" class="reps" name="Activities.Activity.Lap[0].reps" placeholder="Reps"><input type="text" name="Activities.Activity.Lap[0].weight" class="weight" placeholder="Weight in KG"><a href=# class=delete>delete</a>');
                         socket.emit('getexerciselist', 'Exercise');
                     break;
             }

@@ -24,9 +24,9 @@ $(document).ready(function() {
 //         socket.emit('getexercises', 'please');
          $('ul#editexercise li').remove();
          $('span.EditExerciseID').removeAttr('docid');
-         var newElem = $('<li><label>Name</label><input type="text" name="exercise.name" value=""></li>');
-         newElem.append('<li><label>exercise.type</label><select name="exercise.type" ><option value="">Select...</option><option value="Cardio">Cardio</option><option value="Exercise">Weights</option></select></li>');
-         newElem.append('<li><label>Muscle Data Array</label><input type="text" name="exercise.muscledata" value=""></li>');
+         var newElem = $('<li><label class="nofloat">Name</label><input type="text" name="exercise.name" value=""></li>');
+         newElem.append('<li><label class="nofloat">exercise.type</label><select name="exercise.type" ><option value="">Select...</option><option value="Cardio">Cardio</option><option value="Exercise">Weights</option></select></li>');
+         newElem.append('<li><label class="nofloat">Muscle Data Array</label><input type="text" name="exercise.muscledata" value=""></li>');
          $(newElem).appendTo('#editexercise');
          $("#ExerciseEditorForm").dialog("open");
         });
@@ -53,7 +53,7 @@ $(document).ready(function() {
         var array = json;
         exercise_autocompletedata = array;
             $.each(json, function(index, array) {
-                    $( "ul#exercises" ).append('<li><label>Exercise Name</label> '+ array.exercise.name + '<label>Exercise Name</label>'+ array.exercise.type + '<label>Muscle Data</label>'+ array.exercise.muscledata + '<a  href=# class="exercisedelete" title="' + array._id +'" >Delete</a><a  href=# class="exerciseedit" title="' + array._id +'" >Edit</a></li>');
+                    $( "ul#exercises" ).append('<li> Exercice Name - '+ array.exercise.name + ' - Exercise Type - ' + array.exercise.type + ' - Muscle Data - '+ array.exercise.muscledata + '<a  href=# class="exercisedelete" title="' + array._id +'" >Delete</a><a  href=# class="exerciseedit" title="' + array._id +'" >Edit</a></li>');
             })
         ;
     });
