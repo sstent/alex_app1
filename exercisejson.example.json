@@ -1,0 +1,11 @@
+{
+	"_id":"50ece28320d7bda81a6f21eb",
+	"Exercise":{
+		"Name":"Bench",
+		"Type":"Weights",
+		"Description":"Rough Description of Exercise",
+		"Difficulty":"1",
+		"Keywords":["keyword1","keyword2"],
+		"Alternatives":[{"_Exercise_ID":"234324"},{"_Exercise_ID":"234324"}],
+		"MuscleData":"2,3,4,5,6"}
+}

@@ -104,33 +104,44 @@ io.sockets.on('connection', function(socket) {
   ///////////////////////////////////////////
     socket.on('getactivites', function(data) {
         console.log('getactivities');
+        combinedarray = [0,0,0,0,0,4];
         testcollection.find().toArray(function(err, result) {
             if (err) throw err;
-                async.forEachSeries(result, 
+                async.forEachSeries(result,
                     function(item,callback2) {
-                        async.forEachSeries(item.Activities.Activity.Lap, 
+                        item.Activities.Activity.combinedarray = [0, 0, 0, 0, 0, 0];
+                        console.log ('index= ' + result.indexOf(item) );
+                        async.forEachSeries(item.Activities.Activity.Lap,
                             function(itemx,callback3){
                                 exercisecollection.findById(itemx.selection, function(err, exresult) {
                                     if (err) throw err;
+                                    muscledataarray = exresult.exercise.muscledata.split(',');
+                                    console.log('muscledata index' + i + '= ' + JSON.stringify(muscledataarray));
+                                    for(var i = 0; i < 6; i++) {
+                                    console.log('muscledata index' + i + '= ' + muscledataarray[i]);
+                                    item.Activities.Activity.combinedarray[i] =  parseInt(muscledataarray[i], 10) + item.Activities.Activity.combinedarray[i];
+                                    console.log('combinedarray= ' + JSON.stringify(item.Activities.Activity.combinedarray));
+                                    }
                                         itemx.exercisename = exresult.exercise.name;
                                         itemx.exercisemuscledata = exresult.exercise.muscledata;
                                         itemx.exercisetype = exresult.exercise.type;
                                 callback3();
                                 });
                     }, function(err){
+
                         callback2();
-                    });                       
+                    });
                 }, function(err){
                     /////////THIS is psuedo code for adding the activity arrays
                     //combinedarray = [0,0,0,0,0,0]
                     // for j in result
-                       // do 
+                       // do
                             //for i in (1..6)
-                                // do 
+                                // do
                                 // combinedarray[i] =  result[j].exercisemuscledata[i] + combinedarray[i]
-                            // 
+                            //
                     // result.combinedarray = combinedarray
-                    socket.emit('populateactivities', result); 
+                    socket.emit('populateactivities', result);
                 });
         });
 });
@@ -139,7 +150,7 @@ io.sockets.on('connection', function(socket) {
         testcollection.findById(id, function(err, result) {
             if (err) throw err;
 
-                                async.forEachSeries(result.Activities.Activity.Lap, 
+                                async.forEachSeries(result.Activities.Activity.Lap,
                                     function(itemx,callback3){
                                         exercisecollection.findById(itemx.selection, function(err, exresult) {
                                             if (err) throw err;
